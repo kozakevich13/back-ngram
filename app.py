@@ -142,6 +142,35 @@ def get_bigram_dict():
         return jsonify(success=True, bigram_dict=bigram_dict)
     except Exception as e:
         return jsonify(success=False, message=str(e))
+    
+@app.route('/n-grams', methods=['GET'])
+def get_n_grams():
+    try:
+        n_gram_type = request.args.get('type', 'bigram')  # Зчитування параметра типу н-грами (за замовчуванням - біграма)
+
+        # Завантаження тексту із файлу
+        text = load_text_from_file(file_path)
+
+        # Токенізація тексту
+        words = nltk.word_tokenize(text)
+
+        # Визначення н-грами відповідно до вибраного типу
+        if n_gram_type == 'bigram':
+            n_grams = list(bigrams(words))
+        elif n_gram_type == 'trigram':
+            n_grams = list(nltk.trigrams(words))
+        else:
+            return jsonify(success=False, message='Invalid n-gram type. Use "bigram" or "trigram".')
+
+        # Обчислення частот н-грами
+        freq_n_grams = FreqDist(n_grams)
+
+        # Перетворення в словник для відправки на клієнт
+        n_gram_dict = {' '.join(n_gram): freq for n_gram, freq in freq_n_grams.items()}
+
+        return jsonify(success=True, n_gram_dict=n_gram_dict)
+    except Exception as e:
+        return jsonify(success=False, message=str(e))
 
 
 # @app.route('/get_data', methods=['GET'])
