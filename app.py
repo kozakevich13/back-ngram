@@ -26,28 +26,32 @@ word_file_path = 'saved_words.txt'
 
 
 
-def generate_message(seed_word, num_words=6):
+def generate_message(seed_word, num_words=6, n_gram_type='bigram'):
     # Завантаження тексту із файлу
     text = load_text_from_file(file_path)
 
     word = load_word_from_file(word_file_path)
 
-
     # Токенізація тексту
     words = nltk.word_tokenize(text)
 
-    # Визначення біграм
-    bi_grams = list(bigrams(words))
+    # Визначення n-грам
+    if n_gram_type == 'bigram':
+        n_grams = list(bigrams(words))
+    elif n_gram_type == 'trigram':
+        n_grams = list(nltk.trigrams(words))
+    else:
+        raise ValueError('Invalid n-gram type. Use "bigram" or "trigram".', n_gram_type)
 
-    # Обчислення частот біграм
-    freq_bi_grams = FreqDist(bi_grams)
+    # Обчислення частот n-грам
+    freq_n_grams = FreqDist(n_grams)
 
     message = [seed_word]
     current_word = seed_word
 
     for _ in range(num_words - 1):
-        # Вибір біграм, що починається поточним словом
-        next_words = [word[1] for word in freq_bi_grams if word[0] == current_word]
+        # Вибір n-грам, що починається поточним словом
+        next_words = [word[1] for word in freq_n_grams if word[0] == current_word]
 
         if next_words:
             next_word = next_words[0]
@@ -97,8 +101,10 @@ def process_generation():
     try:
         seed_word = request.args.get('seed_word', '')  # Отримати seed_word з параметрів запиту
         num_words = int(request.args.get('num_words', 6))  # Отримати num_words з параметрів запиту
+        n_gram_type = request.args.get('n_gram_type', '')  # Отримати seed_word з параметрів запиту
 
-        message = generate_message(seed_word, num_words)
+
+        message = generate_message(seed_word, num_words, n_gram_type )
 
         return jsonify(success=True, message=message)
     except Exception as e:
