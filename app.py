@@ -103,6 +103,18 @@ def process_generation():
         return jsonify(success=True, message=message)
     except Exception as e:
         return jsonify(success=False, message=str(e))
+    
+@app.route('/delete_text', methods=['DELETE'])
+def delete_text():
+    try:
+        # Очистити вміст файлу saved_text.txt
+        with open('saved_text.txt', 'w', encoding='utf-8') as file:
+            file.write('')
+            
+        return jsonify(success=True, message='Text deleted successfully.')
+    except Exception as e:
+        return jsonify(success=False, message=str(e))
+
 
 # @app.route('/get_data', methods=['GET'])
 # def get_data():
