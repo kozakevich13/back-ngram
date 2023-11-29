@@ -115,6 +115,28 @@ def delete_text():
     except Exception as e:
         return jsonify(success=False, message=str(e))
 
+@app.route('/bigram_dict', methods=['GET'])
+def get_bigram_dict():
+    try:
+        # Завантаження тексту із файлу
+        text = load_text_from_file(file_path)
+
+        # Токенізація тексту
+        words = nltk.word_tokenize(text)
+
+        # Визначення біграм
+        bi_grams = list(bigrams(words))
+
+        # Обчислення частот біграм
+        freq_bi_grams = FreqDist(bi_grams)
+
+        # Перетворення в словник для відправки на клієнт
+        bigram_dict = {f"{bigram[0]} {bigram[1]}": freq for bigram, freq in freq_bi_grams.items()}
+
+        return jsonify(success=True, bigram_dict=bigram_dict)
+    except Exception as e:
+        return jsonify(success=False, message=str(e))
+
 
 # @app.route('/get_data', methods=['GET'])
 # def get_data():
