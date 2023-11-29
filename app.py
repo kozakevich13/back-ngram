@@ -54,8 +54,8 @@ def generate_message(seed_word, num_words=6):
             message.append(next_word)
 
             # Перевірка, чи є крапка у згенерованому повідомленні
-            if '.' in next_word:
-                break
+            # if '.' in next_word:
+            #     break
 
             current_word = next_word
         else:
