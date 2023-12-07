@@ -1,8 +1,9 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 import nltk
 from nltk import bigrams
 from nltk.probability import FreqDist
+import io
 
 nltk.download('punkt')
 
@@ -23,7 +24,7 @@ file_path = 'saved_text.txt'
 
 word_file_path = 'saved_words.txt'
 
-
+dictionary_file_path = 'dictionary.txt'
 
 
 def generate_message(seed_word, num_words=6, n_gram_type='bigram'):
@@ -168,7 +169,12 @@ def get_n_grams():
         # Перетворення в словник для відправки на клієнт
         n_gram_dict = {' '.join(n_gram): freq for n_gram, freq in freq_n_grams.items()}
 
-        return jsonify(success=True, n_gram_dict=n_gram_dict)
+        # Save the dictionary to 'dictionary.txt'
+        with open(dictionary_file_path, 'w', encoding='utf-8') as file:
+            for key, value in n_gram_dict.items():
+                file.write(f"{key}: {value}\n")
+
+        return jsonify(success=True, n_gram_dict=n_gram_dict, message='Dictionary saved to dictionary.txt')
     except Exception as e:
         return jsonify(success=False, message=str(e))
     
@@ -189,6 +195,25 @@ def process_text_file():
         file.save(file_path)
 
         return jsonify(success=True, message='Text file saved successfully.')
+    except Exception as e:
+        return jsonify(success=False, message=str(e))
+    
+@app.route('/download-dictionary', methods=['GET'])
+def download_dictionary():
+    try:
+        # Load the dictionary from 'dictionary.txt'
+        with open(dictionary_file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+
+        # Set up response headers to force download
+        response = send_file(
+            io.BytesIO(content.encode('utf-8')),
+            as_attachment=True,
+            download_name='dictionary.txt',
+            mimetype='text/plain'
+        )
+
+        return response
     except Exception as e:
         return jsonify(success=False, message=str(e))
 
