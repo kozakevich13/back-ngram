@@ -171,6 +171,26 @@ def get_n_grams():
         return jsonify(success=True, n_gram_dict=n_gram_dict)
     except Exception as e:
         return jsonify(success=False, message=str(e))
+    
+@app.route('/upload-fiel', methods=['POST'])
+def process_text_file():
+    try:
+        # Check if the request has a file attached
+        if 'file' not in request.files:
+            return jsonify(success=False, message='No file part')
+
+        file = request.files['file']
+
+        # Check if the file is empty
+        if file.filename == '':
+            return jsonify(success=False, message='No selected file')
+
+        # Save the file to 'saved_text.txt'
+        file.save(file_path)
+
+        return jsonify(success=True, message='Text file saved successfully.')
+    except Exception as e:
+        return jsonify(success=False, message=str(e))
 
 
 # @app.route('/get_data', methods=['GET'])
