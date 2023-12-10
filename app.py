@@ -58,9 +58,8 @@ def generate_message(seed_word, num_words=6, n_gram_type='bigram'):
             next_word = next_words[0]
             message.append(next_word)
 
-            # Перевірка, чи є крапка у згенерованому повідомленні
-            # if '.' in next_word:
-            #     break
+            # Видалення використаної біграми
+            freq_n_grams[(current_word, next_word)] -= 1
 
             current_word = next_word
         else:
