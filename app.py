@@ -47,6 +47,9 @@ def generate_message(seed_word, num_words=6, n_gram_type='bigram'):
     # Обчислення частот n-грам
     freq_n_grams = FreqDist(n_grams)
 
+    # Список для зберігання використаних біграм
+    used_bigrams = []
+
     message = [seed_word]
     current_word = seed_word
 
@@ -56,16 +59,25 @@ def generate_message(seed_word, num_words=6, n_gram_type='bigram'):
 
         if next_words:
             next_word = next_words[0]
-            message.append(next_word)
 
-            # Видалення використаної біграми
-            freq_n_grams[(current_word, next_word)] -= 1
+            # Додавання використаної біграми до списку
+            used_bigrams.append((current_word, next_word))
+
+            message.append(next_word)
+            
+            # Перевірка, чи є крапка у згенерованому повідомленні
+            # if '.' in next_word:
+            #     break
 
             current_word = next_word
         else:
             break
 
-    return ' '.join(message)
+    # Виведення використаних біграм у повідомленні
+    used_bigrams_str = ', '.join([f'[{bigram[0]}, {bigram[1]}]' for bigram in used_bigrams])
+    message_with_bigrams = f"Згенероване повідомлення: {' '.join(message)}  |  Використані n-грами: {used_bigrams_str}"
+
+    return message_with_bigrams
 
 @app.route('/', methods=['POST'])
 def process_text():
