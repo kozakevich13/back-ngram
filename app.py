@@ -78,7 +78,7 @@ def process_text():
         with open('saved_text.txt', 'a', encoding='utf-8') as file:
             file.write(text + ' ')  # Додати новий текст з пробілом
             
-        return jsonify(success=True, message='Text saved successfully.')
+        return jsonify(success=True, message='Збережено текст для навчання')
     except Exception as e:
         return jsonify(success=False, message=str(e))
     
@@ -93,7 +93,7 @@ def process_word():
         with open('saved_words.txt', 'w', encoding='utf-8') as file:
             file.write(text + ' ')  # Додати новий текст з пробілом
             
-        return jsonify(success=True, message='Text saved successfully.')
+        return jsonify(success=True, message='Збережено текст для навчання')
     except Exception as e:
         return jsonify(success=False, message=str(e))
 
