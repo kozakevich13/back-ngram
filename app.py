@@ -47,36 +47,27 @@ def generate_message(seed_word, num_words=6, n_gram_type='bigram'):
     # Обчислення частот n-грам
     freq_n_grams = FreqDist(n_grams)
 
-    # Список для зберігання використаних біграм
-    used_bigrams = []
+    used_bigrams = set()  # Використані біграми зберігаються у множині
 
     message = [seed_word]
     current_word = seed_word
 
     for _ in range(num_words - 1):
-        # Вибір n-грам, що починається поточним словом
-        next_words = [word[1] for word in freq_n_grams if word[0] == current_word]
+        # Вибір доступних n-грам для поточного слова (без вже використаних біграм)
+        next_words = [word[1] for word in freq_n_grams if word[0] == current_word and word not in used_bigrams]
 
         if next_words:
             next_word = next_words[0]
 
-            # Додавання використаної біграми до списку
-            used_bigrams.append((current_word, next_word))
+            # Додавання використаної біграми до множини
+            used_bigrams.add((current_word, next_word))
 
             message.append(next_word)
-            
-            # Перевірка, чи є крапка у згенерованому повідомленні
-            # if '.' in next_word:
-            #     break
-
             current_word = next_word
         else:
             break
 
-    # Виведення використаних біграм у повідомленні
-    used_bigrams_str = ', '.join([f'[{bigram[0]}, {bigram[1]}]' for bigram in used_bigrams])
-    message_with_bigrams = f"Згенероване повідомлення: {' '.join(message)}  |  Використані n-грами: {used_bigrams_str}"
-
+    message_with_bigrams = ' '.join(message)
     return message_with_bigrams
 
 @app.route('/', methods=['POST'])
@@ -177,8 +168,11 @@ def get_n_grams():
         # Обчислення частот н-грами
         freq_n_grams = FreqDist(n_grams)
 
+        # Сортування по частоті
+        freq_n_grams = sorted(freq_n_grams.items(), key=lambda x: x[1], reverse=True)
+
         # Перетворення в словник для відправки на клієнт
-        n_gram_dict = {' '.join(n_gram): freq for n_gram, freq in freq_n_grams.items()}
+        n_gram_dict = {' '.join(n_gram): freq for n_gram, freq in freq_n_grams}
 
         # Save the dictionary to 'dictionary.txt'
         with open(dictionary_file_path, 'w', encoding='utf-8') as file:
